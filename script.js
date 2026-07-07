@@ -28,12 +28,12 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The great hunter, forever chasing the horizon",
     stars: [
-      { x: 14, y: 24 }, { x: 23, y: 22 },
-      { x: 16, y: 34 }, { x: 19, y: 36 }, { x: 22, y: 38 },
-      { x: 24, y: 50 }, { x: 13, y: 48 },
+      { x: 13, y: 18 }, { x: 22, y: 16 },
+      { x: 15, y: 28 }, { x: 18, y: 30 }, { x: 21, y: 32 },
+      { x: 23, y: 44 }, { x: 12, y: 42 },
     ],
     edges: [[0, 2], [1, 4], [2, 3], [3, 4], [2, 6], [4, 5]],
-    centerPct: { x: 18, y: 36 },
+    centerPct: { x: 17, y: 30 },
     focusZoom: 2.4,
     nebulaColor: "rgba(255,150,60,0.14)",
     songs: [
@@ -50,11 +50,11 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "Seven sisters transformed into stars, still running",
     stars: [
-      { x: 46, y: 12 }, { x: 49, y: 10 }, { x: 52, y: 13 },
-      { x: 48, y: 16 }, { x: 51, y: 17 }, { x: 44, y: 15 },
+      { x: 48, y: 28 }, { x: 51, y: 26 }, { x: 54, y: 29 },
+      { x: 50, y: 32 }, { x: 53, y: 33 }, { x: 46, y: 31 },
     ],
     edges: [[0, 1], [1, 2], [0, 3], [3, 4], [0, 5]],
-    centerPct: { x: 48, y: 14 },
+    centerPct: { x: 50, y: 30 },
     focusZoom: 3.0,
     nebulaColor: "rgba(120,160,255,0.12)",
     songs: [
@@ -71,10 +71,10 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The vain queen, chained to her throne and spinning through the sky forever",
     stars: [
-      { x: 66, y: 14 }, { x: 70, y: 20 }, { x: 74, y: 13 }, { x: 78, y: 19 }, { x: 82, y: 12 },
+      { x: 74, y: 28 }, { x: 78, y: 34 }, { x: 82, y: 27 }, { x: 86, y: 33 }, { x: 90, y: 26 },
     ],
     edges: [[0, 1], [1, 2], [2, 3], [3, 4]],
-    centerPct: { x: 74, y: 16 },
+    centerPct: { x: 82, y: 30 },
     focusZoom: 2.6,
     nebulaColor: "rgba(170,120,255,0.11)",
     songs: [
@@ -91,11 +91,11 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The Nemean lion, golden and unconquerable",
     stars: [
-      { x: 80, y: 42 }, { x: 83, y: 38 }, { x: 86, y: 41 },
-      { x: 85, y: 47 }, { x: 90, y: 50 }, { x: 88, y: 58 },
+      { x: 77, y: 65 }, { x: 80, y: 61 }, { x: 83, y: 64 },
+      { x: 82, y: 70 }, { x: 87, y: 73 }, { x: 85, y: 81 },
     ],
     edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]],
-    centerPct: { x: 85, y: 47 },
+    centerPct: { x: 82, y: 70 },
     focusZoom: 2.3,
     nebulaColor: "rgba(110,150,255,0.10)",
     songs: [
@@ -112,10 +112,10 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The lyre of Orpheus, still singing after he was gone",
     stars: [
-      { x: 16, y: 70 }, { x: 13, y: 78 }, { x: 19, y: 80 }, { x: 14, y: 86 }, { x: 20, y: 87 },
+      { x: 17, y: 60 }, { x: 14, y: 68 }, { x: 20, y: 70 }, { x: 15, y: 76 }, { x: 21, y: 77 },
     ],
     edges: [[0, 1], [0, 2], [1, 3], [2, 4], [3, 4]],
-    centerPct: { x: 16, y: 80 },
+    centerPct: { x: 17, y: 70 },
     focusZoom: 2.8,
     nebulaColor: "rgba(150,110,255,0.12)",
     // Starts on the same song as Aquarius, but keeps its own rotationIndex
@@ -134,10 +134,10 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The water-bearer, pouring endlessly into the dark",
     stars: [
-      { x: 48, y: 72 }, { x: 52, y: 76 }, { x: 50, y: 82 }, { x: 55, y: 85 }, { x: 53, y: 90 }, { x: 58, y: 88 },
+      { x: 46, y: 60 }, { x: 50, y: 64 }, { x: 48, y: 70 }, { x: 53, y: 73 }, { x: 51, y: 78 }, { x: 56, y: 76 },
     ],
     edges: [[0, 1], [1, 2], [2, 3], [3, 4], [3, 5]],
-    centerPct: { x: 52, y: 82 },
+    centerPct: { x: 50, y: 70 },
     focusZoom: 2.3,
     nebulaColor: "rgba(120,170,255,0.10)",
     songs: [
@@ -158,12 +158,12 @@ const CONSTELLATIONS = [
     isEasterEgg: true,
     mythNote: null,
     stars: [
-      { x: 92, y: 64 }, { x: 92, y: 68 }, { x: 92, y: 71 }, { x: 90, y: 73 }, { x: 88, y: 72 }, // "J"
-      { x: 95, y: 64 }, { x: 97, y: 64 }, { x: 99, y: 64 }, { x: 97, y: 69 }, { x: 97, y: 73 }, // "T"
+      { x: 92.52, y: 89.57 }, { x: 92.52, y: 90.84 }, { x: 92.52, y: 91.80 }, { x: 91.89, y: 92.43 }, { x: 91.25, y: 92.11 }, // "J"
+      { x: 93.48, y: 89.57 }, { x: 94.11, y: 89.57 }, { x: 94.75, y: 89.57 }, { x: 94.11, y: 91.16 }, { x: 94.11, y: 92.43 }, // "T"
     ],
     edges: [[0, 1], [1, 2], [2, 3], [3, 4], [5, 6], [6, 7], [6, 8], [8, 9]],
-    centerPct: { x: 95, y: 69 },
-    focusZoom: 3.2,
+    centerPct: { x: 93, y: 91 },
+    focusZoom: 6.5,
     nebulaColor: null,
     songs: [
       { file: "audio/ivy.mp3", title: "Ivy", artist: "Frank Ocean" },
@@ -195,16 +195,22 @@ const CONFIG = {
   EASE_NORMAL: 0.15,
   EASE_FOCUS: 0.045,
   MIN_ZOOM: 0.6,
-  MAX_ZOOM: 4.5,
+  MAX_ZOOM: 10,
   ROTATION_SENSITIVITY: 0.0006,
   MAX_ROTATION: 0.15,
   HOVER_RADIUS: 55,
+  CLICK_RADIUS: 90,
   LEAVE_RADIUS: 230,
   FOCUS_DIST_EPS: 150,
   FOCUS_ZOOM_EPS: 0.6,
+  DEEP_ZOOM_MULT: 1.6,
+  DOUBLE_CLICK_MS: 350,
+  DOUBLE_CLICK_DIST: 40,
   CROSSFADE_MS: 1500,
   SHOOTING_STAR_MIN_MS: 30000,
   SHOOTING_STAR_MAX_MS: 60000,
+  SHOOTING_STAR_TAIL_FRAC: 0.34,
+  SHOOTING_STAR_HIT_TOLERANCE: 18,
   NUDGE_SPEED: 350,
   MOON_POS: { x: 82, y: 10 },
   INTRO: {
@@ -228,6 +234,7 @@ const CONFIG = {
 // =====================================================================
 const canvas = document.getElementById("sky");
 const ctx = canvas.getContext("2d");
+const subtitleEl = document.getElementById("intro-subtitle");
 
 let cw = window.innerWidth;
 let ch = window.innerHeight;
@@ -249,10 +256,16 @@ const input = {
   pinchStartDist: 0,
   lastMidX: 0, lastMidY: 0,
   keysDown: new Set(),
+  lastClickTime: 0,
+  lastClickCs: null,
+  lastClickX: 0,
+  lastClickY: 0,
 };
 
 const ui = {
   activeFocusId: null,
+  closeFocusId: null,
+  isDefaultView: true,
 };
 
 const bgStars = { far: [], mid: [], near: [] };
@@ -281,6 +294,20 @@ let introCenterX = 0, introCenterY = 0;
 // =====================================================================
 // INIT
 // =====================================================================
+function computeFitZoom() {
+  return Math.min(cw / CONFIG.SKY_W, ch / CONFIG.SKY_H) * 0.9;
+}
+
+function updateIntroLayout() {
+  const subtitleH = subtitleEl.getBoundingClientRect().height || 40;
+  const NAME_H = 100;
+  const GAP = 28;
+  const blockH = NAME_H + GAP + subtitleH;
+  introCenterX = cw / 2;
+  introCenterY = ch / 2 - blockH / 2 + NAME_H / 2;
+  subtitleEl.style.top = `${introCenterY + NAME_H / 2 + GAP + subtitleH / 2}px`;
+}
+
 function resizeCanvas() {
   cw = window.innerWidth;
   ch = window.innerHeight;
@@ -288,8 +315,11 @@ function resizeCanvas() {
   canvas.width = cw * dpr;
   canvas.height = ch * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  introCenterX = cw / 2;
-  introCenterY = ch * 0.38;
+  updateIntroLayout();
+  if (ui.isDefaultView) {
+    camera.targetZoom = computeFitZoom();
+    camera.zoom = camera.targetZoom;
+  }
 }
 
 function randRange(a, b) {
@@ -330,37 +360,44 @@ function initConstellationState() {
 
 function sampleTextToStars(text) {
   const off = document.createElement("canvas");
-  off.width = 900;
-  off.height = 220;
+  off.width = 1400;
+  off.height = 340;
   const octx = off.getContext("2d");
   octx.fillStyle = "#000";
   octx.fillRect(0, 0, off.width, off.height);
   octx.fillStyle = "#fff";
-  octx.font = "bold 92px Georgia, serif";
+  octx.font = "128px 'Segoe Script', 'Brush Script MT', 'Bradley Hand', cursive";
   octx.textAlign = "center";
   octx.textBaseline = "middle";
   octx.fillText(text, off.width / 2, off.height / 2);
   const data = octx.getImageData(0, 0, off.width, off.height).data;
-  const step = 12;
+  const cell = 7;
   const points = [];
-  for (let y = 0; y < off.height; y += step) {
-    for (let x = 0; x < off.width; x += step) {
-      const idx = (y * off.width + x) * 4;
-      if (data[idx] > 128) {
-        points.push({ x: x - off.width / 2, y: y - off.height / 2, igniteDelay: randRange(0, CONFIG.INTRO.igniteWindow) });
+  for (let gy = 0; gy < off.height; gy += cell) {
+    for (let gx = 0; gx < off.width; gx += cell) {
+      for (let tries = 0; tries < 5; tries++) {
+        const jx = gx + randRange(0, cell);
+        const jy = gy + randRange(0, cell);
+        const idx = (Math.floor(jy) * off.width + Math.floor(jx)) * 4;
+        if (data[idx] > 128) {
+          points.push({ x: jx - off.width / 2, y: jy - off.height / 2, igniteDelay: randRange(0, CONFIG.INTRO.igniteWindow) });
+          break;
+        }
       }
     }
   }
+  const linkRadius = cell * 1.8;
   const edges = [];
   for (let i = 0; i < points.length; i++) {
-    let best = -1, bestD = Infinity;
+    const candidates = [];
     for (let j = 0; j < points.length; j++) {
       if (i === j) continue;
-      const d = (points[i].x - points[j].x) ** 2 + (points[i].y - points[j].y) ** 2;
-      if (d < bestD) { bestD = d; best = j; }
+      const d = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y);
+      if (d < linkRadius) candidates.push({ j, d });
     }
-    if (best >= 0 && Math.sqrt(bestD) < step * 2.2) {
-      const pair = i < best ? [i, best] : [best, i];
+    candidates.sort((a, b) => a.d - b.d);
+    for (const { j } of candidates.slice(0, 2)) {
+      const pair = i < j ? [i, j] : [j, i];
       if (!edges.some(e => e[0] === pair[0] && e[1] === pair[1])) edges.push(pair);
     }
   }
@@ -470,15 +507,31 @@ function focusOnConstellation(cs) {
   camera.targetZoom = cs.focusZoom;
   camera.targetRotation = 0;
   camera.easeSpeed = CONFIG.EASE_FOCUS;
+  ui.isDefaultView = false;
+}
+
+function closeFocusOnConstellation(cs) {
+  const p = CONFIG.PARALLAX.mid;
+  const worldX = (cs.centerPct.x / 100) * CONFIG.SKY_W;
+  const worldY = (cs.centerPct.y / 100) * CONFIG.SKY_H;
+  camera.targetPanX = -(worldX - CONFIG.SKY_W / 2) / p;
+  camera.targetPanY = -(worldY - CONFIG.SKY_H / 2) / p;
+  camera.targetZoom = Math.min(CONFIG.MAX_ZOOM, cs.focusZoom * CONFIG.DEEP_ZOOM_MULT);
+  camera.targetRotation = 0;
+  camera.easeSpeed = CONFIG.EASE_FOCUS;
+  ui.closeFocusId = cs.id;
+  ui.isDefaultView = false;
 }
 
 function resetCamera() {
   camera.targetPanX = 0;
   camera.targetPanY = 0;
-  camera.targetZoom = 1;
+  camera.targetZoom = computeFitZoom();
   camera.targetRotation = 0;
   camera.easeSpeed = CONFIG.EASE_FOCUS;
   ui.activeFocusId = null;
+  ui.closeFocusId = null;
+  ui.isDefaultView = true;
 }
 
 function updateCameraLerp() {
@@ -496,6 +549,17 @@ function isConstellationFocused(cs) {
   const worldY = (cs.centerPct.y / 100) * CONFIG.SKY_H;
   const dist = Math.hypot(viewCenter.x - worldX, viewCenter.y - worldY);
   return dist < CONFIG.FOCUS_DIST_EPS && Math.abs(camera.zoom - cs.focusZoom) < CONFIG.FOCUS_ZOOM_EPS;
+}
+
+function isCloseFocused(cs) {
+  if (ui.closeFocusId !== cs.id) return false;
+  const p = CONFIG.PARALLAX.mid;
+  const viewCenter = screenToWorldAtLayer(cw / 2, ch / 2, p, camera);
+  const worldX = (cs.centerPct.x / 100) * CONFIG.SKY_W;
+  const worldY = (cs.centerPct.y / 100) * CONFIG.SKY_H;
+  const dist = Math.hypot(viewCenter.x - worldX, viewCenter.y - worldY);
+  const deepZoom = Math.min(CONFIG.MAX_ZOOM, cs.focusZoom * CONFIG.DEEP_ZOOM_MULT);
+  return dist < CONFIG.FOCUS_DIST_EPS && Math.abs(camera.zoom - deepZoom) < CONFIG.FOCUS_ZOOM_EPS;
 }
 
 // =====================================================================
@@ -539,9 +603,28 @@ function tryActivateAt(clientX, clientY) {
     const { dist } = nearestStarInConstellation(cs, worldPos);
     if (dist < bestDist) { bestDist = dist; bestCs = cs; }
   }
-  if (bestCs && bestDist < CONFIG.HOVER_RADIUS) {
-    activateConstellation(bestCs);
+  if (!bestCs || bestDist >= CONFIG.CLICK_RADIUS) return;
+
+  const now = performance.now();
+  const isDouble = bestCs === input.lastClickCs
+    && (now - input.lastClickTime) < CONFIG.DOUBLE_CLICK_MS
+    && Math.hypot(clientX - input.lastClickX, clientY - input.lastClickY) < CONFIG.DOUBLE_CLICK_DIST;
+  input.lastClickTime = now;
+  input.lastClickCs = bestCs;
+  input.lastClickX = clientX;
+  input.lastClickY = clientY;
+
+  if (isDouble) {
+    if (ui.closeFocusId === bestCs.id) {
+      resetCamera();
+    } else {
+      ui.activeFocusId = bestCs.id;
+      closeFocusOnConstellation(bestCs);
+    }
+    return;
   }
+
+  activateConstellation(bestCs);
 }
 
 function canvasRelative(clientX, clientY) {
@@ -592,7 +675,7 @@ window.addEventListener("mouseup", (e) => {
   input.dragging = false;
   const pos = canvasRelative(e.clientX, e.clientY);
   if (!input.dragMoved) {
-    tryActivateAt(pos.x, pos.y);
+    if (!tryHitShootingStar(e.clientX, e.clientY)) tryActivateAt(pos.x, pos.y);
   } else if (Math.hypot(input.velX, input.velY) > 0.5) {
     input.coasting = true;
   }
@@ -657,7 +740,7 @@ canvas.addEventListener("touchend", (e) => {
     if (!input.dragMoved) {
       const t = e.changedTouches[0];
       const pos = canvasRelative(t.clientX, t.clientY);
-      tryActivateAt(pos.x, pos.y);
+      if (!tryHitShootingStar(t.clientX, t.clientY)) tryActivateAt(pos.x, pos.y);
     } else if (Math.hypot(input.velX, input.velY) > 0.5) {
       input.coasting = true;
     }
@@ -808,7 +891,7 @@ function updatePlayerProgress() {
 function updateConstellationVisuals(dt, now) {
   for (const cs of CONSTELLATIONS) {
     const cState = constellationState.get(cs.id);
-    const focused = isConstellationFocused(cs);
+    const focused = isConstellationFocused(cs) || isCloseFocused(cs);
 
     if (!cs.isEasterEgg && !cs.visited) {
       cState.pulsePhase += dt * 1.6;
@@ -841,14 +924,46 @@ function spawnShootingStar(now) {
   const startY = randRange(ch * 0.05, ch * 0.4);
   const angle = randRange(20, 65) * (Math.PI / 180) * (Math.random() < 0.5 ? 1 : -1);
   const distance = Math.hypot(cw, ch) * 0.32;
-  const duration = randRange(800, 1400);
+  const duration = randRange(3000, 4000);
   shootingStar.active = true;
+  shootingStar.quoteShown = false;
   shootingStar.startTime = now;
   shootingStar.duration = duration;
   shootingStar.x0 = startX;
   shootingStar.y0 = startY;
   shootingStar.dx = Math.cos(angle) * distance * (Math.random() < 0.5 ? -1 : 1);
   shootingStar.dy = Math.sin(Math.abs(angle)) * distance;
+}
+
+function getShootingStarSegment(now) {
+  const t = Math.min(1, (now - shootingStar.startTime) / shootingStar.duration);
+  const headX = shootingStar.x0 + shootingStar.dx * t;
+  const headY = shootingStar.y0 + shootingStar.dy * t;
+  const tailT = Math.max(0, t - CONFIG.SHOOTING_STAR_TAIL_FRAC);
+  const tailX = shootingStar.x0 + shootingStar.dx * tailT;
+  const tailY = shootingStar.y0 + shootingStar.dy * tailT;
+  return { headX, headY, tailX, tailY };
+}
+
+function distToSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const lenSq = dx * dx + dy * dy;
+  let t = lenSq > 0 ? ((px - x1) * dx + (py - y1) * dy) / lenSq : 0;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+function tryHitShootingStar(clientX, clientY) {
+  if (!shootingStar.active || shootingStar.quoteShown) return false;
+  const now = performance.now();
+  const { headX, headY, tailX, tailY } = getShootingStarSegment(now);
+  const pos = canvasRelative(clientX, clientY);
+  if (distToSegment(pos.x, pos.y, tailX, tailY, headX, headY) < CONFIG.SHOOTING_STAR_HIT_TOLERANCE) {
+    shootingStar.quoteShown = true;
+    onShootingStarComplete();
+    return true;
+  }
+  return false;
 }
 
 function pickQuote() {
@@ -875,7 +990,6 @@ function updateShootingStar(now) {
   const t = (now - shootingStar.startTime) / shootingStar.duration;
   if (t >= 1) {
     shootingStar.active = false;
-    onShootingStarComplete();
     scheduleNextShootingStar(now);
   }
 }
@@ -890,7 +1004,6 @@ function introElapsed(now) {
 function updateIntro(now) {
   if (introDone) return;
   const elapsed = introElapsed(now);
-  const subtitleEl = document.getElementById("intro-subtitle");
   const I = CONFIG.INTRO;
   if (elapsed >= I.subtitleInStart && elapsed < I.fadeOutStart) {
     subtitleEl.classList.add("visible");
@@ -1050,13 +1163,17 @@ function drawConstellations(now, alphaMult) {
       ctx.stroke();
     }
 
+    const glowR = (cs.isEasterEgg ? 8 : 14) * camera.zoom;
+    const dotR = cs.isEasterEgg ? 1.0 : 1.8;
+    const glowAlphaMult = cs.isEasterEgg ? 0.35 : 0.55;
+    const dotAlphaMult = cs.isEasterEgg ? 0.75 : 1;
     screenPts.forEach((pos, i) => {
       const alpha = cState.alphas[i] * alphaMult;
       if (alpha <= 0.02) return;
-      drawGlow(pos.x, pos.y, 14 * camera.zoom, `rgba(255,244,214,${alpha * 0.55})`);
-      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      drawGlow(pos.x, pos.y, glowR, `rgba(255,244,214,${alpha * glowAlphaMult})`);
+      ctx.fillStyle = `rgba(255,255,255,${alpha * dotAlphaMult})`;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 1.8, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, dotR, 0, Math.PI * 2);
       ctx.fill();
     });
 
@@ -1079,7 +1196,7 @@ function drawConstellations(now, alphaMult) {
       }
     }
 
-    if (!cs.isEasterEgg && isConstellationFocused(cs)) {
+    if (!cs.isEasterEgg && (isConstellationFocused(cs) || isCloseFocused(cs))) {
       const labelPos = worldToScreenAtLayer(
         (cs.centerPct.x / 100) * CONFIG.SKY_W,
         (cs.centerPct.y / 100) * CONFIG.SKY_H,
@@ -1102,22 +1219,29 @@ function drawConstellations(now, alphaMult) {
 
 function drawShootingStar(now) {
   if (!shootingStar.active) return;
-  const t = Math.min(1, (now - shootingStar.startTime) / shootingStar.duration);
-  const headX = shootingStar.x0 + shootingStar.dx * t;
-  const headY = shootingStar.y0 + shootingStar.dy * t;
-  const tailT = Math.max(0, t - 0.18);
-  const tailX = shootingStar.x0 + shootingStar.dx * tailT;
-  const tailY = shootingStar.y0 + shootingStar.dy * tailT;
-  const grad = ctx.createLinearGradient(tailX, tailY, headX, headY);
-  grad.addColorStop(0, "rgba(255,255,255,0)");
-  grad.addColorStop(1, "rgba(255,255,255,0.85)");
-  ctx.strokeStyle = grad;
-  ctx.lineWidth = 2;
+  const { headX, headY, tailX, tailY } = getShootingStarSegment(now);
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(210,225,255,0.12)";
+  ctx.lineWidth = 6;
+  ctx.lineCap = "round";
   ctx.beginPath();
   ctx.moveTo(tailX, tailY);
   ctx.lineTo(headX, headY);
   ctx.stroke();
-  drawGlow(headX, headY, 8, "rgba(255,255,255,0.9)");
+  ctx.restore();
+
+  const grad = ctx.createLinearGradient(tailX, tailY, headX, headY);
+  grad.addColorStop(0, "rgba(255,255,255,0)");
+  grad.addColorStop(1, "rgba(255,255,255,0.9)");
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(tailX, tailY);
+  ctx.lineTo(headX, headY);
+  ctx.stroke();
+  drawGlow(headX, headY, 11, "rgba(255,255,255,0.9)");
 }
 
 function draw(now) {
@@ -1170,6 +1294,7 @@ function tick(now) {
 // =====================================================================
 function bootstrap() {
   resizeCanvas();
+  camera.zoom = camera.targetZoom = computeFitZoom();
   generateBackgroundStars();
   initConstellationState();
   createAudioPool();
