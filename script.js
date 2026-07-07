@@ -30,7 +30,7 @@ const CONSTELLATIONS = [
     stars: [
       { x: 9.0, y: 30.0 }, { x: 18.8, y: 30.7 },
       { x: 9.7, y: 38.5 }, { x: 19.5, y: 39.2 },
-      { x: 14.2, y: 41.0 }, { x: 14.9, y: 41.5 }, { x: 15.6, y: 42.0 },
+      { x: 12.9, y: 39.9 }, { x: 14.6, y: 41.7 }, { x: 16.2, y: 43.5 },
       { x: 10.6, y: 51.3 }, { x: 20.5, y: 52.0 },
       { x: 21.4, y: 25.0 }, { x: 24.1, y: 22.1 }, { x: 26.7, y: 20.4 },
     ],
@@ -55,7 +55,7 @@ const CONSTELLATIONS = [
       { x: 48.4, y: 14.0 }, { x: 45.8, y: 11.0 }, { x: 49.3, y: 10.0 },
       { x: 52.0, y: 13.0 }, { x: 51.1, y: 17.0 }, { x: 46.7, y: 18.0 }, { x: 44.0, y: 15.0 },
     ],
-    edges: [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6]],
+    edges: [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 1], [0, 1]],
     centerPct: { x: 48, y: 14 },
     focusZoom: 3.0,
     nebulaColor: "rgba(120,160,255,0.12)",
@@ -115,12 +115,12 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The lyre of Orpheus, still singing after he was gone",
     stars: [
-      { x: 22.0, y: 72.0 },
-      { x: 12.0, y: 81.1 }, { x: 22.0, y: 80.0 }, { x: 10.0, y: 86.9 }, { x: 21.2, y: 88.0 },
+      { x: 21.2, y: 72.0 }, { x: 15.8, y: 75.2 }, { x: 23.0, y: 74.9 },
+      { x: 10.3, y: 81.1 }, { x: 16.7, y: 82.3 }, { x: 9.0, y: 86.9 }, { x: 15.4, y: 88.0 },
     ],
-    edges: [[0, 2], [1, 2], [2, 4], [4, 3], [3, 1]],
+    edges: [[0, 1], [1, 2], [2, 0], [1, 3], [3, 4], [4, 6], [6, 5], [5, 3]],
     centerPct: { x: 16, y: 80 },
-    focusZoom: 2.4,
+    focusZoom: 1.9,
     nebulaColor: "rgba(150,110,255,0.12)",
     // Starts on the same song as Aquarius, but keeps its own rotationIndex
     // below — the two rotations advance independently.
@@ -138,13 +138,13 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The water-bearer, pouring endlessly into the dark",
     stars: [
-      { x: 59.2, y: 72.0 }, { x: 50.2, y: 79.1 }, { x: 56.6, y: 79.7 },
-      { x: 45.8, y: 82.9 }, { x: 42.6, y: 86.7 }, { x: 40.0, y: 90.8 },
-      { x: 57.9, y: 83.8 }, { x: 61.1, y: 87.9 }, { x: 64.0, y: 92.0 },
+      { x: 58.8, y: 72.0 }, { x: 50.7, y: 78.9 }, { x: 54.6, y: 77.7 },
+      { x: 46.8, y: 82.3 }, { x: 43.6, y: 86.3 }, { x: 41.0, y: 90.9 },
+      { x: 55.6, y: 83.1 }, { x: 59.8, y: 87.4 }, { x: 63.0, y: 92.0 },
     ],
-    edges: [[0, 1], [1, 3], [3, 4], [4, 5], [1, 2], [2, 6], [6, 7], [7, 8]],
+    edges: [[0, 1], [1, 2], [1, 3], [3, 4], [4, 5], [1, 6], [6, 7], [7, 8]],
     centerPct: { x: 52, y: 82 },
-    focusZoom: 1.4,
+    focusZoom: 1.5,
     nebulaColor: "rgba(120,170,255,0.10)",
     songs: [
       { file: "audio/sidelines.mp3", title: "Sidelines", artist: "Phoebe Bridgers" },
