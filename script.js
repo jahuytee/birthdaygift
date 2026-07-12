@@ -65,12 +65,16 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "Seven sisters transformed into stars, still running",
     stars: [
-      { x: 46, y: 12 }, { x: 49, y: 10 }, { x: 52, y: 13 },
-      { x: 48, y: 16 }, { x: 51, y: 17 }, { x: 44, y: 15 },
+      { x: 48.25, y: 16.21 }, { x: 46.00, y: 17.89 }, { x: 46.07, y: 16.54 },
+      { x: 50.16, y: 18.23 }, { x: 51.94, y: 15.30 }, { x: 52.00, y: 12.67 },
+      { x: 50.39, y: 12.08 }, { x: 51.43, y: 10.41 }, { x: 50.20, y: 9.77 },
     ],
-    edges: [[0, 1], [1, 2], [0, 3], [3, 4], [0, 5]],
-    centerPct: { x: 48, y: 14 },
-    focusZoom: 3.0,
+    edges: [
+      [0, 1], [1, 2], [0, 3], [4, 5],
+      [5, 7], [7, 6], [6, 4], [0, 6], [4, 3],
+    ],
+    centerPct: { x: 49, y: 14 },
+    focusZoom: 3.5,
     nebulaColor: "rgba(120,160,255,0.12)",
     songs: [
       { file: "audio/mirrorball.mp3", title: "Mirrorball", artist: "Taylor Swift" },
