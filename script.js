@@ -15,6 +15,29 @@
 //   centerPct     {x,y} % position the camera flies to on activation
 //   focusZoom     how far the camera zooms in for focus mode
 //   nebulaColor   faint background color wash, or null for none
+//   illustrationSrc  path to a mythological reference illustration that
+//                 fades in behind the stars on focus, or omit for none.
+//                 The image is alpha-matted and cropped at load time —
+//                 see preloadIllustrations().
+//   illustrationRotation  degrees to rotate the illustration around its
+//                 own center before compositing (positive = clockwise).
+//                 Optional, defaults to 0 — a per-image alignment knob,
+//                 doesn't affect the alpha-matting/crop pass.
+//   illustrationMaxAlpha  peak opacity the illustration fades in to.
+//                 Optional, defaults to CONFIG.ILLUSTRATION_MAX_ALPHA —
+//                 a per-image override for art that reads too faint (or
+//                 too strong) at the shared default.
+//   skipMatting   true draws the illustration as-is (no background
+//                 removal/auto-crop) at low flat opacity — for full
+//                 paintings/photos with no flat background to matte out.
+//                 Optional, defaults to false. Sizing, centering, fade
+//                 timing, and rotation all still work the same either way.
+//   illustrationFeather  true fades the illustration's own outer edges
+//                 to transparent (see featherCanvasEdges()), so a hard
+//                 rectangular image boundary doesn't show against the
+//                 sky. Independent of skipMatting — applies after either
+//                 the matting pass or the as-is load. Optional, defaults
+//                 to false.
 //   songs         [{file, title, artist}, ...] rotates on each activation.
 //                 Add a real song by filling in a placeholder slot below —
 //                 use file:null for a reserved/future slot.
@@ -76,6 +99,9 @@ const CONSTELLATIONS = [
     centerPct: { x: 49, y: 14 },
     focusZoom: 3.5,
     nebulaColor: "rgba(120,160,255,0.12)",
+    illustrationSrc: "illustrations/pleiades.jpg",
+    skipMatting: true,
+    illustrationFeather: true,
     songs: [
       { file: "audio/mirrorball.mp3", title: "Mirrorball", artist: "Taylor Swift" },
       { file: null, title: "-- reserved for future song --", artist: "" },
@@ -90,12 +116,15 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The vain queen, chained to her throne and spinning through the sky forever",
     stars: [
-      { x: 66, y: 14 }, { x: 70, y: 20 }, { x: 74, y: 13 }, { x: 78, y: 19 }, { x: 82, y: 12 },
+      { x: 66.00, y: 8.00 }, { x: 70.83, y: 14.00 }, { x: 73.77, y: 11.50 }, { x: 76.76, y: 15.50 }, { x: 82.00, y: 13.50 },
     ],
     edges: [[0, 1], [1, 2], [2, 3], [3, 4]],
-    centerPct: { x: 74, y: 16 },
-    focusZoom: 2.6,
+    centerPct: { x: 74, y: 11.75 },
+    focusZoom: 2.8,
     nebulaColor: "rgba(170,120,255,0.11)",
+    illustrationSrc: "illustrations/cass.jpg",
+    illustrationRotation: 90,
+    illustrationMaxAlpha: 0.20,
     songs: [
       { file: "audio/linger.mp3", title: "Linger", artist: "The Cranberries" },
       { file: null, title: "-- reserved for future song --", artist: "" },
@@ -110,13 +139,18 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The Nemean lion, golden and unconquerable",
     stars: [
-      { x: 80, y: 42 }, { x: 83, y: 38 }, { x: 86, y: 41 },
-      { x: 85, y: 47 }, { x: 90, y: 50 }, { x: 88, y: 58 },
+      { x: 78.00, y: 54.00 }, { x: 81.83, y: 48.06 }, { x: 88.68, y: 46.05 },
+      { x: 90.71, y: 47.64 }, { x: 91.47, y: 51.60 }, { x: 82.44, y: 52.12 },
+      { x: 88.46, y: 43.37 }, { x: 90.85, y: 40.00 }, { x: 92.00, y: 41.18 },
     ],
-    edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]],
+    edges: [
+      [0, 1], [0, 5], [5, 4], [1, 2], [2, 6], [2, 3], [3, 4], [6, 7], [7, 8],
+    ],
     centerPct: { x: 85, y: 47 },
     focusZoom: 2.3,
     nebulaColor: "rgba(110,150,255,0.10)",
+    illustrationSrc: "illustrations/leo.png",
+    illustrationRotation: 0,
     songs: [
       { file: "audio/alley-rose.mp3", title: "Alley Rose", artist: "Conan Gray" },
       { file: null, title: "-- reserved for future song --", artist: "" },
@@ -131,12 +165,18 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The lyre of Orpheus, still singing after he was gone",
     stars: [
-      { x: 16, y: 70 }, { x: 13, y: 78 }, { x: 19, y: 80 }, { x: 14, y: 86 }, { x: 20, y: 87 },
+      { x: 12.50, y: 84.44 }, { x: 14.37, y: 86.03 }, { x: 18.07, y: 76.61 },
+      { x: 21.50, y: 74.66 }, { x: 19.22, y: 71.98 }, { x: 15.70, y: 74.86 },
     ],
-    edges: [[0, 1], [0, 2], [1, 3], [2, 4], [3, 4]],
-    centerPct: { x: 16, y: 80 },
-    focusZoom: 2.8,
+    edges: [
+      [0, 1], [0, 5], [1, 2], [5, 2], [2, 4], [4, 3], [3, 2],
+    ],
+    centerPct: { x: 17, y: 79 },
+    focusZoom: 3.2,
     nebulaColor: "rgba(150,110,255,0.12)",
+    illustrationSrc: "illustrations/lyra.jpg",
+    illustrationRotation: 0,
+    illustrationMaxAlpha: 0.18,
     // Starts on the same song as Aquarius, but keeps its own rotationIndex
     // below — the two rotations advance independently.
     songs: [
@@ -153,12 +193,23 @@ const CONSTELLATIONS = [
     isEasterEgg: false,
     mythNote: "The water-bearer, pouring endlessly into the dark",
     stars: [
-      { x: 48, y: 72 }, { x: 52, y: 76 }, { x: 50, y: 82 }, { x: 55, y: 85 }, { x: 53, y: 90 }, { x: 58, y: 88 },
+      { x: 44.88, y: 87.49 }, { x: 44.00, y: 79.74 }, { x: 45.40, y: 77.78 }, { x: 46.41, y: 78.12 },
+      { x: 47.34, y: 82.59 }, { x: 46.24, y: 85.13 }, { x: 46.00, y: 88.10 }, { x: 49.82, y: 78.15 },
+      { x: 50.72, y: 73.68 }, { x: 49.27, y: 73.09 }, { x: 49.22, y: 72.24 }, { x: 48.55, y: 71.90 },
+      { x: 48.29, y: 73.46 }, { x: 53.94, y: 76.55 }, { x: 50.61, y: 82.95 }, { x: 58.00, y: 80.38 },
     ],
-    edges: [[0, 1], [1, 2], [2, 3], [3, 4], [3, 5]],
-    centerPct: { x: 52, y: 82 },
-    focusZoom: 2.3,
+    edges: [
+      [11, 10], [10, 9], [9, 8], [11, 12], [12, 9],
+      [8, 7], [7, 3], [3, 2], [2, 1],
+      [3, 4], [4, 5],
+      [1, 0], [1, 5], [1, 6],
+      [7, 13], [8, 13], [13, 14], [13, 15],
+    ],
+    centerPct: { x: 51, y: 80 },
+    focusZoom: 2.0,
     nebulaColor: "rgba(120,170,255,0.10)",
+    illustrationSrc: "illustrations/aquarius.png",
+    illustrationRotation: 90,
     songs: [
       { file: "audio/sidelines.mp3", title: "Sidelines", artist: "Phoebe Bridgers" },
       { file: null, title: "-- reserved for future song --", artist: "" },
@@ -210,11 +261,12 @@ const CONFIG = {
   SKY_W: 1600,
   SKY_H: 900,
   PARALLAX: { far: 0.25, mid: 0.55, near: 1.0 },
-  STAR_COUNTS: { far: 220, mid: 140, near: 80 },
+  STAR_COUNTS: { far: 880, mid: 560, near: 320 },
   EASE_NORMAL: 0.15,
   EASE_FOCUS: 0.045,
   MIN_ZOOM: 0.6,
   MAX_ZOOM: 4.5,
+  DEFAULT_ZOOM: 0.67,
   ROTATION_SENSITIVITY: 0.0006,
   MAX_ROTATION: 0.15,
   HOVER_RADIUS: 55,
@@ -226,6 +278,15 @@ const CONFIG = {
   SHOOTING_STAR_MAX_MS: 60000,
   NUDGE_SPEED: 350,
   MOON_POS: { x: 82, y: 10 },
+  ILLUSTRATION_MAX_ALPHA: 0.10,
+  ILLUSTRATION_PADDING: 2.2,
+  ILLUSTRATION_FADE_IN_RATE: 0.045,
+  ILLUSTRATION_FADE_OUT_RATE: 0.065,
+  ILLUSTRATION_LUM_THRESHOLD: 20,
+  ILLUSTRATION_TINT: [210, 225, 255],
+  ILLUSTRATION_EDGE_MARGIN_FRAC: 0.02,
+  ILLUSTRATION_CAPTION_GAP_FRAC: 0.04,
+  ILLUSTRATION_FEATHER_FRAC: 0.18,
   INTRO: {
     igniteWindow: 1400,
     igniteDur: 400,
@@ -253,8 +314,8 @@ let ch = window.innerHeight;
 let dpr = window.devicePixelRatio || 1;
 
 const camera = {
-  panX: 0, panY: 0, zoom: 1, rotation: 0,
-  targetPanX: 0, targetPanY: 0, targetZoom: 1, targetRotation: 0,
+  panX: 0, panY: 0, zoom: CONFIG.DEFAULT_ZOOM, rotation: 0,
+  targetPanX: 0, targetPanY: 0, targetZoom: CONFIG.DEFAULT_ZOOM, targetRotation: 0,
   easeSpeed: CONFIG.EASE_NORMAL,
 };
 
@@ -277,6 +338,10 @@ const ui = {
 const bgStars = { far: [], mid: [], near: [] };
 
 const constellationState = new Map();
+
+// Processed (alpha-matted, cropped) illustration canvases, keyed by
+// constellation id. Populated asynchronously by preloadIllustrations().
+const illustrationAssets = new Map();
 
 const audioState = {
   elements: [],
@@ -316,13 +381,15 @@ function randRange(a, b) {
 }
 
 function generateBackgroundStars() {
+  const BUFFER_X = CONFIG.SKY_W * 0.5;
+  const BUFFER_Y = CONFIG.SKY_H * 0.5;
   for (const layer of ["far", "mid", "near"]) {
     const count = CONFIG.STAR_COUNTS[layer];
     const arr = [];
     for (let i = 0; i < count; i++) {
       arr.push({
-        x: randRange(0, CONFIG.SKY_W),
-        y: randRange(0, CONFIG.SKY_H),
+        x: randRange(-BUFFER_X, CONFIG.SKY_W + BUFFER_X),
+        y: randRange(-BUFFER_Y, CONFIG.SKY_H + BUFFER_Y),
         size: layer === "far" ? randRange(0.5, 1.2) : layer === "mid" ? randRange(0.8, 1.8) : randRange(1.2, 2.6),
         baseAlpha: layer === "far" ? randRange(0.2, 0.45) : layer === "mid" ? randRange(0.3, 0.6) : randRange(0.45, 0.85),
         twinkleSpeed: layer === "far" ? randRange(0.3, 0.6) : layer === "mid" ? randRange(0.6, 1.1) : randRange(1.0, 1.8),
@@ -337,53 +404,273 @@ function generateBackgroundStars() {
 
 function initConstellationState() {
   for (const cs of CONSTELLATIONS) {
-    constellationState.set(cs.id, {
+    const state = {
       hoverProgress: -1,
       alphas: cs.stars.map(() => 0),
       pulsePhase: Math.random() * Math.PI * 2,
       postSongGlow: 0,
       ripple: null,
-    });
+      illustrationAlpha: 0,
+      illustrationBoxW: 0,
+      illustrationBoxH: 0,
+    };
+    if (cs.illustrationSrc) {
+      // The illustration is fit inside a padded box derived from the
+      // constellation's own star spread, so it scales with the star field
+      // instead of needing a hand-tuned size per constellation.
+      const xs = cs.stars.map((s) => s.x);
+      const ys = cs.stars.map((s) => s.y);
+      state.illustrationBoxW = ((Math.max(...xs) - Math.min(...xs)) / 100) * CONFIG.SKY_W;
+      state.illustrationBoxH = ((Math.max(...ys) - Math.min(...ys)) / 100) * CONFIG.SKY_H;
+    }
+    constellationState.set(cs.id, state);
   }
 }
 
 function sampleTextToStars(text) {
+  // Hand-crafted constellation-style letterforms: each capital letter is a
+  // small skeleton of 3-6 points (local box, x:[0,width], y:[-7,7] so every
+  // letter is already vertically centered on its own) connected by straight
+  // edges — dot-to-dot geometry rather than a filled/sampled glyph. S uses
+  // the classic seven-segment skeleton (top/upper-left/middle/lower-right/
+  // bottom bars) so it reads unambiguously instead of as a Z or sigma.
+  const LETTERS = {
+    A: { width: 10, points: [{ x: 5, y: -7 }, { x: 0, y: 7 }, { x: 10, y: 7 }, { x: 2.5, y: 1 }, { x: 7.5, y: 1 }], edges: [[0, 1], [0, 2], [3, 4]] },
+    L: { width: 7, points: [{ x: 0, y: -7 }, { x: 0, y: 7 }, { x: 7, y: 7 }], edges: [[0, 1], [1, 2]] },
+    N: { width: 8, points: [{ x: 0, y: 7 }, { x: 0, y: -7 }, { x: 8, y: 7 }, { x: 8, y: -7 }], edges: [[0, 1], [1, 2], [2, 3]] },
+    I: { width: 8, points: [{ x: 1, y: -7 }, { x: 7, y: -7 }, { x: 1, y: 7 }, { x: 7, y: 7 }, { x: 4, y: -7 }, { x: 4, y: 7 }], edges: [[0, 1], [4, 5], [2, 3]] },
+    S: { width: 7, points: [{ x: 0, y: -7 }, { x: 7, y: -7 }, { x: 0, y: 0 }, { x: 7, y: 0 }, { x: 0, y: 7 }, { x: 7, y: 7 }], edges: [[0, 1], [0, 2], [2, 3], [3, 5], [4, 5]] },
+    P: { width: 7, points: [{ x: 0, y: 7 }, { x: 0, y: -7 }, { x: 7, y: -6 }, { x: 7, y: -1 }, { x: 0, y: 0 }], edges: [[0, 1], [1, 2], [2, 3], [3, 4]] },
+    E: { width: 7, points: [{ x: 0, y: -7 }, { x: 7, y: -7 }, { x: 0, y: 0 }, { x: 5, y: 0 }, { x: 0, y: 7 }, { x: 7, y: 7 }], edges: [[0, 1], [0, 2], [2, 3], [2, 4], [4, 5]] },
+    R: { width: 7, points: [{ x: 0, y: 7 }, { x: 0, y: -7 }, { x: 7, y: -6 }, { x: 7, y: -1 }, { x: 0, y: 0 }, { x: 7, y: 7 }], edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]] },
+    O: { width: 8, points: [{ x: 4, y: -7 }, { x: 8, y: -5 }, { x: 8, y: 5 }, { x: 4, y: 7 }, { x: 0, y: 5 }, { x: 0, y: -5 }], edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0]] },
+  };
+  const LETTER_SPACING = 4;
+  const SPACE_WIDTH = 10;
+
+  const upper = text.toUpperCase();
+  let cursor = 0;
+  const rawPoints = [];
+  const edges = [];
+  for (const ch of upper) {
+    if (ch === " ") {
+      cursor += SPACE_WIDTH;
+      continue;
+    }
+    const letter = LETTERS[ch];
+    if (!letter) continue;
+    const base = rawPoints.length;
+    for (const p of letter.points) rawPoints.push({ x: p.x + cursor, y: p.y });
+    for (const [a, b] of letter.edges) edges.push([base + a, base + b]);
+    cursor += letter.width + LETTER_SPACING;
+  }
+  const localTotalWidth = Math.max(1, cursor - LETTER_SPACING);
+  const LETTER_HEIGHT = 14; // every letter's local y spans [-7, 7]
+  const NAME_LEFT_FRAC = 0.1;
+  const NAME_WIDTH_FRAC = 0.8; // name spans cw*0.1 to cw*0.9
+  const NAME_HEIGHT_FRAC = 0.10; // letter height as a fraction of ch
+
+  // Points are stored as normalized 0-1 fractions of the viewport (xFrac of
+  // cw, yFrac as an offset-of-ch from the name's vertical anchor) — no
+  // pixel values baked in here. renderIntro multiplies by cw/ch every
+  // frame, so this stays correct even if the window is resized later.
+  const points = rawPoints.map((p) => ({
+    xFrac: NAME_LEFT_FRAC + (p.x / localTotalWidth) * NAME_WIDTH_FRAC,
+    yFrac: (p.y / LETTER_HEIGHT) * NAME_HEIGHT_FRAC,
+  }));
+
+  // Ignite left-to-right across the whole name, with a little jitter, so it
+  // reads as a deliberate sweep rather than random twinkling.
+  for (const p of points) {
+    const frac = (p.xFrac - NAME_LEFT_FRAC) / NAME_WIDTH_FRAC;
+    const delay = frac * CONFIG.INTRO.igniteWindow + randRange(-150, 150);
+    p.igniteDelay = Math.max(0, Math.min(CONFIG.INTRO.igniteWindow, delay));
+  }
+  return { points, edges };
+}
+
+// =====================================================================
+// ILLUSTRATIONS — mythological reference art that fades in behind a
+// focused constellation. Source assets are flat images with an opaque
+// background (sometimes a baked-in caption or a hairline frame border)
+// in either a dark-bg/light-linework style (Aquarius) or a light-bg/
+// dark-silhouette style (Leo). processIllustrationImage() turns either
+// into a background-free "ghost": it samples the background color from
+// a corner pixel, figures out whether that background is light or dark,
+// then alpha-mattes every pixel by how far it deviates from that
+// background in the "away from background" direction — so a black
+// silhouette on white and white linework on black both matte out to a
+// clean, backgroundless shape with no extra per-image flag needed.
+//
+// Cropping works in two passes so it's robust to more than just a bare
+// figure on empty background:
+//   1. Walk rows to find which contain content, ignoring a thin margin
+//      around the frame edge (skips hairline borders some assets bake
+//      in). The vertical span stops at the first large all-background
+//      gap, so a caption band sitting below the artwork gets dropped —
+//      while art whose content legitimately reaches near the bottom
+//      edge (no such gap) is kept in full.
+//   2. Within that vertical span, find the horizontal content extent.
+// =====================================================================
+function processIllustrationImage(img) {
+  const w = img.naturalWidth, h = img.naturalHeight;
+  if (!w || !h) return null;
   const off = document.createElement("canvas");
-  off.width = 900;
-  off.height = 220;
+  off.width = w;
+  off.height = h;
   const octx = off.getContext("2d");
-  octx.fillStyle = "#000";
-  octx.fillRect(0, 0, off.width, off.height);
-  octx.fillStyle = "#fff";
-  octx.font = "bold 92px Georgia, serif";
-  octx.textAlign = "center";
-  octx.textBaseline = "middle";
-  octx.fillText(text, off.width / 2, off.height / 2);
-  const data = octx.getImageData(0, 0, off.width, off.height).data;
-  const step = 12;
-  const points = [];
-  for (let y = 0; y < off.height; y += step) {
-    for (let x = 0; x < off.width; x += step) {
-      const idx = (y * off.width + x) * 4;
-      if (data[idx] > 128) {
-        points.push({ x: x - off.width / 2, y: y - off.height / 2, igniteDelay: randRange(0, CONFIG.INTRO.igniteWindow) });
+  octx.drawImage(img, 0, 0);
+
+  let srcData;
+  try {
+    srcData = octx.getImageData(0, 0, w, h);
+  } catch (e) {
+    // Canvas reads can be blocked (e.g. opening index.html via file://
+    // without a local server) — skip the illustration rather than throw.
+    return null;
+  }
+  const px = srcData.data;
+
+  const marginX = Math.round(w * CONFIG.ILLUSTRATION_EDGE_MARGIN_FRAC);
+  const marginY = Math.round(h * CONFIG.ILLUSTRATION_EDGE_MARGIN_FRAC);
+
+  // Sample the background color just inside the margin, not the absolute
+  // corner (0,0) — some source assets have a hairline frame border right
+  // at the edge, and sampling that instead of the true background would
+  // misjudge whether the image is light-bg or dark-bg entirely.
+  const bgIdx = (marginY * w + marginX) * 4;
+  const bgLum = 0.299 * px[bgIdx] + 0.587 * px[bgIdx + 1] + 0.114 * px[bgIdx + 2];
+  const isLightBg = bgLum > 127.5;
+  const contentRange = Math.max(1, isLightBg ? bgLum : 255 - bgLum);
+  const contentDiffAt = (idx) => {
+    const lum = 0.299 * px[idx] + 0.587 * px[idx + 1] + 0.114 * px[idx + 2];
+    return isLightBg ? bgLum - lum : lum - bgLum;
+  };
+
+  const rowHasContent = new Array(h).fill(false);
+  for (let y = marginY; y < h - marginY; y++) {
+    for (let x = marginX; x < w - marginX; x++) {
+      if (contentDiffAt((y * w + x) * 4) > CONFIG.ILLUSTRATION_LUM_THRESHOLD) {
+        rowHasContent[y] = true;
+        break;
       }
     }
   }
-  const edges = [];
-  for (let i = 0; i < points.length; i++) {
-    let best = -1, bestD = Infinity;
-    for (let j = 0; j < points.length; j++) {
-      if (i === j) continue;
-      const d = (points[i].x - points[j].x) ** 2 + (points[i].y - points[j].y) ** 2;
-      if (d < bestD) { bestD = d; best = j; }
-    }
-    if (best >= 0 && Math.sqrt(bestD) < step * 2.2) {
-      const pair = i < best ? [i, best] : [best, i];
-      if (!edges.some(e => e[0] === pair[0] && e[1] === pair[1])) edges.push(pair);
+
+  let minY = -1, maxY = -1, gapRun = 0;
+  const gapLimit = h * CONFIG.ILLUSTRATION_CAPTION_GAP_FRAC;
+  for (let y = marginY; y < h - marginY; y++) {
+    if (rowHasContent[y]) {
+      if (minY === -1) minY = y;
+      maxY = y;
+      gapRun = 0;
+    } else if (minY !== -1) {
+      gapRun++;
+      if (gapRun > gapLimit) break;
     }
   }
-  return { points, edges };
+  if (minY === -1) return null;
+
+  let minX = w, maxX = -1;
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = marginX; x < w - marginX; x++) {
+      if (contentDiffAt((y * w + x) * 4) > CONFIG.ILLUSTRATION_LUM_THRESHOLD) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+      }
+    }
+  }
+  if (maxX < minX) return null;
+
+  const cropW = maxX - minX + 1;
+  const cropH = maxY - minY + 1;
+  const outCanvas = document.createElement("canvas");
+  outCanvas.width = cropW;
+  outCanvas.height = cropH;
+  const outCtx = outCanvas.getContext("2d");
+  const outData = outCtx.createImageData(cropW, cropH);
+  const [tr, tg, tb] = CONFIG.ILLUSTRATION_TINT;
+  for (let y = 0; y < cropH; y++) {
+    for (let x = 0; x < cropW; x++) {
+      const srcIdx = ((y + minY) * w + (x + minX)) * 4;
+      const a = Math.max(0, Math.min(1, contentDiffAt(srcIdx) / contentRange));
+      const dstIdx = (y * cropW + x) * 4;
+      outData.data[dstIdx] = tr;
+      outData.data[dstIdx + 1] = tg;
+      outData.data[dstIdx + 2] = tb;
+      outData.data[dstIdx + 3] = Math.round(a * 255);
+    }
+  }
+  outCtx.putImageData(outData, 0, 0);
+  return { canvas: outCanvas, width: cropW, height: cropH };
+}
+
+// =====================================================================
+// Fades an illustration canvas's outer edges to fully transparent, so a
+// hard rectangular image boundary doesn't show as a cutoff against the
+// sky behind it. Multiplies each pixel's existing alpha by a mask that's
+// 1 across the center and eases down to 0 within `frac` of that edge on
+// each side (corners fade fastest, being close to two edges at once).
+// Mutates the canvas in place. Independent of processIllustrationImage()
+// — it only touches alpha, never color — so it composes with either the
+// matted/cropped canvas or a plain as-is (skipMatting) canvas, and can
+// be opted into for any illustration via cs.illustrationFeather.
+// =====================================================================
+function featherCanvasEdges(canvas, frac = CONFIG.ILLUSTRATION_FEATHER_FRAC) {
+  const w = canvas.width, h = canvas.height;
+  const octx = canvas.getContext("2d");
+  const imgData = octx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  const featherW = w * frac;
+  const featherH = h * frac;
+  const smoothstep = (t) => t * t * (3 - 2 * t);
+  const edgeFade = (dist, feather) => (feather <= 0 ? 1 : smoothstep(Math.min(1, dist / feather)));
+
+  for (let y = 0; y < h; y++) {
+    const fadeY = edgeFade(Math.min(y, h - 1 - y), featherH);
+    for (let x = 0; x < w; x++) {
+      const fadeX = edgeFade(Math.min(x, w - 1 - x), featherW);
+      const mask = fadeX * fadeY;
+      if (mask >= 1) continue;
+      const idx = (y * w + x) * 4 + 3;
+      data[idx] = Math.round(data[idx] * mask);
+    }
+  }
+  octx.putImageData(imgData, 0, 0);
+}
+
+function preloadIllustrations() {
+  for (const cs of CONSTELLATIONS) {
+    if (!cs.illustrationSrc) continue;
+    const img = new Image();
+    img.onload = () => {
+      if (cs.skipMatting) {
+        if (cs.illustrationFeather) {
+          // Need a real canvas (not the bare <img>) to read/write its
+          // alpha channel for the feather pass.
+          const off = document.createElement("canvas");
+          off.width = img.naturalWidth;
+          off.height = img.naturalHeight;
+          off.getContext("2d").drawImage(img, 0, 0);
+          featherCanvasEdges(off);
+          illustrationAssets.set(cs.id, { canvas: off, width: img.naturalWidth, height: img.naturalHeight });
+          return;
+        }
+        // Full paintings/photos with no flat background to matte out —
+        // use the loaded image directly (canvas 2D drawImage() accepts an
+        // <img> the same as a <canvas>), skipping the pixel-processing
+        // pass entirely.
+        illustrationAssets.set(cs.id, { canvas: img, width: img.naturalWidth, height: img.naturalHeight });
+        return;
+      }
+      const processed = processIllustrationImage(img);
+      if (processed) {
+        if (cs.illustrationFeather) featherCanvasEdges(processed.canvas);
+        illustrationAssets.set(cs.id, processed);
+      }
+    };
+    img.src = cs.illustrationSrc;
+  }
 }
 
 function createAudioPool() {
@@ -494,7 +781,7 @@ function focusOnConstellation(cs) {
 function resetCamera() {
   camera.targetPanX = 0;
   camera.targetPanY = 0;
-  camera.targetZoom = 1;
+  camera.targetZoom = CONFIG.DEFAULT_ZOOM;
   camera.targetRotation = 0;
   camera.easeSpeed = CONFIG.EASE_FOCUS;
   ui.activeFocusId = null;
@@ -845,6 +1132,15 @@ function updateConstellationVisuals(dt, now) {
       const target = Math.max(idlePulse, hoverTarget, focused ? 1 : 0, cState.postSongGlow);
       cState.alphas[i] += (target - cState.alphas[i]) * 0.12;
     });
+
+    if (cs.illustrationSrc) {
+      const maxAlpha = cs.illustrationMaxAlpha != null ? cs.illustrationMaxAlpha : CONFIG.ILLUSTRATION_MAX_ALPHA;
+      const target = focused ? maxAlpha : 0;
+      const rate = target > cState.illustrationAlpha
+        ? CONFIG.ILLUSTRATION_FADE_IN_RATE
+        : CONFIG.ILLUSTRATION_FADE_OUT_RATE;
+      cState.illustrationAlpha += (target - cState.illustrationAlpha) * rate;
+    }
   }
 }
 
@@ -941,6 +1237,9 @@ function renderIntro(now) {
   const overallAlpha = getIntroNameAlpha(elapsed);
   if (overallAlpha <= 0) return;
   const I = CONFIG.INTRO;
+  // Points are normalized (xFrac of cw, yFrac offset of ch) — multiply by
+  // the current viewport every frame so this stays correct on resize.
+  const nameAnchorY = ch * 0.42;
 
   let pulseScale = 1;
   if (elapsed >= I.pulseStart && elapsed <= I.pulseStart + I.pulseDur) {
@@ -956,8 +1255,8 @@ function renderIntro(now) {
   for (const [a, b] of introNameEdges) {
     const p1 = introNameStars[a], p2 = introNameStars[b];
     ctx.beginPath();
-    ctx.moveTo(introCenterX + p1.x, introCenterY + p1.y);
-    ctx.lineTo(introCenterX + p2.x, introCenterY + p2.y);
+    ctx.moveTo(p1.xFrac * cw, nameAnchorY + p1.yFrac * ch);
+    ctx.lineTo(p2.xFrac * cw, nameAnchorY + p2.yFrac * ch);
     ctx.stroke();
   }
 
@@ -965,14 +1264,14 @@ function renderIntro(now) {
     const igniteAlpha = Math.min(1, Math.max(0, (elapsed - star.igniteDelay) / I.igniteDur));
     const a = igniteAlpha * overallAlpha;
     if (a <= 0) continue;
-    const r = 1.6 * pulseScale;
-    const gx = introCenterX + star.x, gy = introCenterY + star.y;
-    const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, r * 4);
+    const r = 2.2 * pulseScale;
+    const gx = star.xFrac * cw, gy = nameAnchorY + star.yFrac * ch;
+    const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, r * 3.5);
     grad.addColorStop(0, `rgba(255,248,225,${a})`);
     grad.addColorStop(1, "rgba(255,248,225,0)");
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(gx, gy, r * 4, 0, Math.PI * 2);
+    ctx.arc(gx, gy, r * 3.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = `rgba(255,255,255,${a})`;
     ctx.beginPath();
@@ -1045,6 +1344,42 @@ function drawNebulas(alphaMult) {
     const pos = worldToScreenAtLayer(wx, wy, CONFIG.PARALLAX.mid, camera);
     ctx.globalAlpha = alphaMult;
     drawGlow(pos.x, pos.y, 260 * camera.zoom, cs.nebulaColor);
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawIllustrations(alphaMult) {
+  for (const cs of CONSTELLATIONS) {
+    if (!cs.illustrationSrc) continue;
+    const asset = illustrationAssets.get(cs.id);
+    if (!asset) continue;
+    const cState = constellationState.get(cs.id);
+    const alpha = cState.illustrationAlpha * alphaMult;
+    if (alpha <= 0.003) continue;
+
+    // Fit the illustration (preserving its own aspect ratio) inside a
+    // padded box derived from the constellation's star spread, so it
+    // scales with the star field rather than needing a fixed size.
+    const targetWorldW = cState.illustrationBoxW * CONFIG.ILLUSTRATION_PADDING;
+    const targetWorldH = cState.illustrationBoxH * CONFIG.ILLUSTRATION_PADDING;
+    const fitScale = Math.min(targetWorldW / asset.width, targetWorldH / asset.height);
+    const drawWorldW = asset.width * fitScale;
+    const drawWorldH = asset.height * fitScale;
+
+    const wx = (cs.centerPct.x / 100) * CONFIG.SKY_W;
+    const wy = (cs.centerPct.y / 100) * CONFIG.SKY_H;
+    const centerScreen = worldToScreenAtLayer(wx, wy, CONFIG.PARALLAX.mid, camera);
+    const screenW = drawWorldW * camera.zoom;
+    const screenH = drawWorldH * camera.zoom;
+    const skyRotation = camera.rotation * CONFIG.PARALLAX.mid;
+    const alignRotation = ((cs.illustrationRotation || 0) * Math.PI) / 180;
+
+    ctx.save();
+    ctx.translate(centerScreen.x, centerScreen.y);
+    ctx.rotate(skyRotation + alignRotation);
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(asset.canvas, -screenW / 2, -screenH / 2, screenW, screenH);
+    ctx.restore();
     ctx.globalAlpha = 1;
   }
 }
@@ -1146,6 +1481,7 @@ function draw(now) {
   drawBackground(mainAlpha);
   if (mainAlpha > 0.01) {
     drawNebulas(mainAlpha);
+    drawIllustrations(mainAlpha);
     drawStarLayer("far", CONFIG.PARALLAX.far, now, mainAlpha);
     drawMoon(mainAlpha);
     drawStarLayer("mid", CONFIG.PARALLAX.mid, now, mainAlpha);
@@ -1192,6 +1528,7 @@ function bootstrap() {
   generateBackgroundStars();
   initConstellationState();
   createAudioPool();
+  preloadIllustrations();
 
   const nameData = sampleTextToStars("Alana Nisperos");
   introNameStars = nameData.points;
