@@ -163,10 +163,43 @@ html, body {
   top: 0;
   height: 3px;
   background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* Larger invisible hit area so the thin visual bar is still easy to grab
+   with a mouse or finger, without changing how tall it looks. */
+#player-progress::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -7px;
+  bottom: -7px;
 }
 
 #player-progress-fill {
+  position: relative;
   height: 100%;
   width: 0%;
   background: rgba(255, 255, 255, 0.55);
+}
+
+#player-progress-handle {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+  transform: translate(50%, -50%) scale(0);
+  transition: transform 0.15s ease;
+  pointer-events: none;
+}
+
+#player-progress:hover #player-progress-handle,
+#player-progress.dragging #player-progress-handle {
+  transform: translate(50%, -50%) scale(1);
 }

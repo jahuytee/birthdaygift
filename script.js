@@ -38,10 +38,10 @@
 //                 sky. Independent of skipMatting — applies after either
 //                 the matting pass or the as-is load. Optional, defaults
 //                 to false.
-//   songs         [{file, title, artist}, ...] rotates on each activation.
+//   songs         [{file, title, artist}, ...] a random real song (file
+//                 not null) plays on each activation — see pickSong().
 //                 Add a real song by filling in a placeholder slot below —
 //                 use file:null for a reserved/future slot.
-//   rotationIndex which song plays on the NEXT activation (starts at 0)
 //   visited       whether it has ever been activated (starts false)
 // =====================================================================
 const CONSTELLATIONS = [
@@ -74,12 +74,14 @@ const CONSTELLATIONS = [
     centerPct: { x: 13.7, y: 28.5 },
     focusZoom: 2.2,
     nebulaColor: "rgba(255,150,60,0.14)",
+    illustrationSrc: "illustrations/orion.png",
+    illustrationRotation: 0,
+    illustrationMaxAlpha: 0.18,
     songs: [
-      { file: "audio/night-shift.mp3", title: "Night Shift", artist: "Lucy Dacus" },
-      { file: null, title: "-- reserved for future song --", artist: "" },
-      { file: null, title: "-- reserved for future song --", artist: "" },
+      { file: "audio/night-shift.mp4", title: "Night Shift", artist: "Lucy Dacus" },
+      { file: "audio/lover.mp4", title: "Lover You Should've Come Over", artist: "Jeff Buckley" },
+      { file: "audio/thecure.mp4", title: "The Cure", artist: "Olivia Rodrigo" },
     ],
-    rotationIndex: 0,
     visited: false,
   },
   {
@@ -103,11 +105,10 @@ const CONSTELLATIONS = [
     skipMatting: true,
     illustrationFeather: true,
     songs: [
-      { file: "audio/mirrorball.mp3", title: "Mirrorball", artist: "Taylor Swift" },
+      { file: "audio/mirrorball.mp4", title: "Mirrorball", artist: "Taylor Swift" },
       { file: null, title: "-- reserved for future song --", artist: "" },
       { file: null, title: "-- reserved for future song --", artist: "" },
     ],
-    rotationIndex: 0,
     visited: false,
   },
   {
@@ -130,7 +131,6 @@ const CONSTELLATIONS = [
       { file: null, title: "-- reserved for future song --", artist: "" },
       { file: null, title: "-- reserved for future song --", artist: "" },
     ],
-    rotationIndex: 0,
     visited: false,
   },
   {
@@ -156,7 +156,6 @@ const CONSTELLATIONS = [
       { file: null, title: "-- reserved for future song --", artist: "" },
       { file: null, title: "-- reserved for future song --", artist: "" },
     ],
-    rotationIndex: 0,
     visited: false,
   },
   {
@@ -177,14 +176,14 @@ const CONSTELLATIONS = [
     illustrationSrc: "illustrations/lyra.jpg",
     illustrationRotation: 0,
     illustrationMaxAlpha: 0.18,
-    // Starts on the same song as Aquarius, but keeps its own rotationIndex
-    // below — the two rotations advance independently.
+    // Shares its only real song with Aquarius, but song selection is
+    // tracked per-constellation (see constellationState), so the two
+    // pick independently.
     songs: [
       { file: "audio/sidelines.mp3", title: "Sidelines", artist: "Phoebe Bridgers" },
       { file: null, title: "-- reserved for future song --", artist: "" },
       { file: null, title: "-- reserved for future song --", artist: "" },
     ],
-    rotationIndex: 0,
     visited: false,
   },
   {
@@ -215,7 +214,6 @@ const CONSTELLATIONS = [
       { file: null, title: "-- reserved for future song --", artist: "" },
       { file: null, title: "-- reserved for future song --", artist: "" },
     ],
-    rotationIndex: 0,
     visited: false,
   },
   // ---- HIDDEN EASTER EGG -------------------------------------------
@@ -238,7 +236,6 @@ const CONSTELLATIONS = [
     songs: [
       { file: "audio/ivy.mp3", title: "Ivy", artist: "Frank Ocean" },
     ],
-    rotationIndex: 0,
     visited: false,
   },
 ];
@@ -249,9 +246,13 @@ const CONSTELLATIONS = [
 // =====================================================================
 const QUOTES = [
   "oink oink mother fucker",
-  "I'll be the aspergers and you be the asspancakes",
+  "I'll be the aspergers and you be the asspancakes - DPL",
   "please just let me keep this one memory. — Eternal Sunshine of the Spotless Mind",
   "You had to leave because you're you. And the reason I liked you is because you're you. And who you are is someone who leaves. — Past Lives",
+  "I Want to Eat Your Pancreas",
+  "The First time a girl called me daddy I was 10 - DPL",
+  "To know how it ends and still begin to sing it again, as if it might turn out this time. - Hermes",
+  "I Want To Eat Your Uterus",
 ];
 
 // =====================================================================
@@ -354,6 +355,8 @@ const audioState = {
   lastQuoteIndex: -1,
 };
 
+const seekState = { dragging: false };
+
 const shootingStar = { active: false, nextAt: 0 };
 
 let introDone = false;
@@ -413,6 +416,7 @@ function initConstellationState() {
       illustrationAlpha: 0,
       illustrationBoxW: 0,
       illustrationBoxH: 0,
+      lastSongIndex: -1,
     };
     if (cs.illustrationSrc) {
       // The illustration is fit inside a padded box derived from the
@@ -427,45 +431,397 @@ function initConstellationState() {
   }
 }
 
-function sampleTextToStars(text) {
-  // Hand-crafted constellation-style letterforms: each capital letter is a
-  // small skeleton of 3-6 points (local box, x:[0,width], y:[-7,7] so every
-  // letter is already vertically centered on its own) connected by straight
-  // edges — dot-to-dot geometry rather than a filled/sampled glyph. S uses
-  // the classic seven-segment skeleton (top/upper-left/middle/lower-right/
-  // bottom bars) so it reads unambiguously instead of as a Z or sigma.
-  const LETTERS = {
-    A: { width: 10, points: [{ x: 5, y: -7 }, { x: 0, y: 7 }, { x: 10, y: 7 }, { x: 2.5, y: 1 }, { x: 7.5, y: 1 }], edges: [[0, 1], [0, 2], [3, 4]] },
-    L: { width: 7, points: [{ x: 0, y: -7 }, { x: 0, y: 7 }, { x: 7, y: 7 }], edges: [[0, 1], [1, 2]] },
-    N: { width: 8, points: [{ x: 0, y: 7 }, { x: 0, y: -7 }, { x: 8, y: 7 }, { x: 8, y: -7 }], edges: [[0, 1], [1, 2], [2, 3]] },
-    I: { width: 8, points: [{ x: 1, y: -7 }, { x: 7, y: -7 }, { x: 1, y: 7 }, { x: 7, y: 7 }, { x: 4, y: -7 }, { x: 4, y: 7 }], edges: [[0, 1], [4, 5], [2, 3]] },
-    S: { width: 7, points: [{ x: 0, y: -7 }, { x: 7, y: -7 }, { x: 0, y: 0 }, { x: 7, y: 0 }, { x: 0, y: 7 }, { x: 7, y: 7 }], edges: [[0, 1], [0, 2], [2, 3], [3, 5], [4, 5]] },
-    P: { width: 7, points: [{ x: 0, y: 7 }, { x: 0, y: -7 }, { x: 7, y: -6 }, { x: 7, y: -1 }, { x: 0, y: 0 }], edges: [[0, 1], [1, 2], [2, 3], [3, 4]] },
-    E: { width: 7, points: [{ x: 0, y: -7 }, { x: 7, y: -7 }, { x: 0, y: 0 }, { x: 5, y: 0 }, { x: 0, y: 7 }, { x: 7, y: 7 }], edges: [[0, 1], [0, 2], [2, 3], [2, 4], [4, 5]] },
-    R: { width: 7, points: [{ x: 0, y: 7 }, { x: 0, y: -7 }, { x: 7, y: -6 }, { x: 7, y: -1 }, { x: 0, y: 0 }, { x: 7, y: 7 }], edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]] },
-    O: { width: 8, points: [{ x: 4, y: -7 }, { x: 8, y: -5 }, { x: 8, y: 5 }, { x: 4, y: 7 }, { x: 0, y: 5 }, { x: 0, y: -5 }], edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0]] },
-  };
-  const LETTER_SPACING = 4;
-  const SPACE_WIDTH = 10;
+// Script font used to trace the intro name's letterforms — an installed
+// system font, not a bundled asset, so this works offline with no load
+// delay. Falls back gracefully across OSes.
+const SCRIPT_FONT_STACK = '"Segoe Script", "Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive';
+const GLYPH_TRACE_PX = 220;
+const GLYPH_MASK_ALPHA_THRESHOLD = 120;
 
-  const upper = text.toUpperCase();
+// Renders one character solid and binarizes it into an ink/no-ink mask —
+// the raw material for skeletonization below.
+function rasterizeGlyphMask(ch, fontPx, ascent, descent) {
+  const pad = Math.ceil(fontPx * 0.18);
+  const off = document.createElement("canvas");
+  const octx = off.getContext("2d");
+  octx.font = `${fontPx}px ${SCRIPT_FONT_STACK}`;
+  const advance = octx.measureText(ch).width;
+  const w = Math.max(1, Math.ceil(advance + pad * 2));
+  const h = Math.ceil(ascent + descent + pad * 2);
+  off.width = w;
+  off.height = h;
+  // Resizing the canvas resets context state, so the font has to be
+  // re-applied before drawing.
+  octx.font = `${fontPx}px ${SCRIPT_FONT_STACK}`;
+  octx.fillStyle = "#fff";
+  octx.textBaseline = "alphabetic";
+  const baselineY = pad + ascent;
+  octx.fillText(ch, pad, baselineY);
+
+  let data;
+  try {
+    data = octx.getImageData(0, 0, w, h).data;
+  } catch (e) {
+    return null;
+  }
+  const mask = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) mask[i] = data[i * 4 + 3] >= GLYPH_MASK_ALPHA_THRESHOLD ? 1 : 0;
+  return { mask, w, h, advance, baselineY, pad };
+}
+
+// Zhang-Suen thinning: erodes the filled glyph down to a 1px-wide medial
+// skeleton that still follows every loop, crossbar and branch — unlike a
+// per-column average, a loop's skeleton actually goes around the loop
+// instead of collapsing it into a flat line through the middle.
+function thinMask(mask, w, h) {
+  let m = mask.slice();
+  const at = (x, y) => (x >= 0 && x < w && y >= 0 && y < h ? m[y * w + x] : 0);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const pass of [0, 1]) {
+      const toClear = [];
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const idx = y * w + x;
+          if (!m[idx]) continue;
+          const p2 = at(x, y - 1), p3 = at(x + 1, y - 1), p4 = at(x + 1, y), p5 = at(x + 1, y + 1);
+          const p6 = at(x, y + 1), p7 = at(x - 1, y + 1), p8 = at(x - 1, y), p9 = at(x - 1, y - 1);
+          const ring = [p2, p3, p4, p5, p6, p7, p8, p9];
+          const B = ring.reduce((s, v) => s + v, 0);
+          if (B < 2 || B > 6) continue;
+          let A = 0;
+          for (let i = 0; i < 8; i++) if (ring[i] === 0 && ring[(i + 1) % 8] === 1) A++;
+          if (A !== 1) continue;
+          if (pass === 0) {
+            if (p2 * p4 * p6 !== 0) continue;
+            if (p4 * p6 * p8 !== 0) continue;
+          } else {
+            if (p2 * p4 * p8 !== 0) continue;
+            if (p2 * p6 * p8 !== 0) continue;
+          }
+          toClear.push(idx);
+        }
+      }
+      if (toClear.length) {
+        changed = true;
+        for (const idx of toClear) m[idx] = 0;
+      }
+    }
+  }
+  return m;
+}
+
+// Builds an 8-connected graph out of the skeleton's remaining "on" pixels.
+// A diagonal neighbor is dropped whenever EITHER flanking orthogonal pixel
+// is also on: that means an orthogonal path already links the two pixels
+// one step further round, so also counting the diagonal adds a redundant
+// "shortcut" edge. Under plain 8-connectivity, an ordinary staircase-
+// shaped stroke is full of these shortcuts — nearly every pixel ends up
+// looking like a 3-4-way junction even though the stroke never branches —
+// which is what was fragmenting letters into hundreds of tiny segments
+// instead of a few clean strokes.
+function buildSkeletonGraph(mask, w, h) {
+  const at = (x, y) => (x >= 0 && x < w && y >= 0 && y < h ? mask[y * w + x] : 0);
+  const nodeOf = new Map();
+  const points = [];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (mask[y * w + x]) {
+        nodeOf.set(y * w + x, points.length);
+        points.push({ x, y });
+      }
+    }
+  }
+  const ORTHO = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  const DIAG = [[1, -1], [1, 1], [-1, 1], [-1, -1]];
+  const adjacency = points.map(() => []);
+  for (let i = 0; i < points.length; i++) {
+    const { x, y } = points[i];
+    for (const [dx, dy] of ORTHO) {
+      if (x + dx < 0 || x + dx >= w) continue;
+      const ni = nodeOf.get((y + dy) * w + (x + dx));
+      if (ni !== undefined) adjacency[i].push(ni);
+    }
+    for (const [dx, dy] of DIAG) {
+      if (x + dx < 0 || x + dx >= w) continue;
+      if (at(x + dx, y) || at(x, y + dy)) continue;
+      const ni = nodeOf.get((y + dy) * w + (x + dx));
+      if (ni !== undefined) adjacency[i].push(ni);
+    }
+  }
+  return { points, adjacency };
+}
+
+// Thinning leaves short dangling spurs at rounded stroke caps and near
+// junctions — prune any endpoint-to-junction branch shorter than minLen
+// so artifacts don't masquerade as real letter features (an extra "hook"
+// that isn't part of the actual letterform).
+function pruneSpurs(points, adjacency, minLen) {
+  const removed = new Set();
+  const degree = (i) => adjacency[i].filter((n) => !removed.has(n)).length;
+  let prunedAny = true;
+  while (prunedAny) {
+    prunedAny = false;
+    for (let i = 0; i < points.length; i++) {
+      if (removed.has(i) || degree(i) !== 1) continue;
+      const branch = [i];
+      let prev = -1, cur = i;
+      while (true) {
+        const nbrs = adjacency[cur].filter((n) => !removed.has(n) && n !== prev);
+        if (nbrs.length !== 1) break;
+        prev = cur;
+        cur = nbrs[0];
+        branch.push(cur);
+        if (degree(cur) !== 2) break;
+      }
+      if (degree(cur) >= 3 && branch.length < minLen) {
+        for (const b of branch.slice(0, -1)) removed.add(b);
+        prunedAny = true;
+      }
+    }
+  }
+  return removed;
+}
+
+function perpendicularDistance(pt, a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(pt.x - a.x, pt.y - a.y);
+  const t = ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / len2;
+  const px = a.x + t * dx, py = a.y + t * dy;
+  return Math.hypot(pt.x - px, pt.y - py);
+}
+
+// Douglas-Peucker corner-preserving simplification — returns the retained
+// indices (not new point objects) so callers can still reach back into
+// the original detailed path between two kept vertices.
+function simplifyIndices(points, epsilon) {
+  if (points.length < 3) return points.map((_, i) => i);
+  const keep = new Set([0, points.length - 1]);
+  const stack = [[0, points.length - 1]];
+  while (stack.length) {
+    const [start, end] = stack.pop();
+    if (end <= start + 1) continue;
+    let maxDist = 0, index = -1;
+    for (let i = start + 1; i < end; i++) {
+      const d = perpendicularDistance(points[i], points[start], points[end]);
+      if (d > maxDist) { maxDist = d; index = i; }
+    }
+    if (maxDist > epsilon && index !== -1) {
+      keep.add(index);
+      stack.push([start, index], [index, end]);
+    }
+  }
+  return Array.from(keep).sort((a, b) => a - b);
+}
+
+// Cumulative arc length along a polyline, so bezier controls can be
+// placed by distance traveled rather than raw index.
+function arcLengthTable(pts) {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) {
+    cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+  }
+  return cum;
+}
+
+function pointAtArcLength(pts, cum, target) {
+  if (pts.length === 1) return pts[0];
+  const total = cum[cum.length - 1];
+  const clamped = Math.max(0, Math.min(total, target));
+  let i = 0;
+  while (i < cum.length - 2 && cum[i + 1] < clamped) i++;
+  const segLen = cum[i + 1] - cum[i] || 1;
+  const t = (clamped - cum[i]) / segLen;
+  return {
+    x: pts[i].x + (pts[i + 1].x - pts[i].x) * t,
+    y: pts[i].y + (pts[i + 1].y - pts[i].y) * t,
+  };
+}
+
+// Walks the skeleton graph into polylines: open chains between
+// endpoints/junctions, plus whole closed loops (a letter like "o" thins
+// to a pure ring with no endpoints at all).
+function extractSkeletonSegments(points, adjacency, removed) {
+  const alive = (i) => !removed.has(i);
+  const degree = (i) => adjacency[i].filter(alive).length;
+  const visitedEdge = new Set();
+  const edgeKey = (a, b) => (a < b ? a + "_" + b : b + "_" + a);
+  const segments = [];
+
+  function walk(start, next) {
+    const seg = [points[start], points[next]];
+    visitedEdge.add(edgeKey(start, next));
+    let prev = start, cur = next;
+    while (degree(cur) === 2) {
+      const nbrs = adjacency[cur].filter((n) => alive(n) && n !== prev);
+      if (nbrs.length !== 1) break;
+      const nxt = nbrs[0];
+      const key = edgeKey(cur, nxt);
+      if (visitedEdge.has(key)) break;
+      visitedEdge.add(key);
+      seg.push(points[nxt]);
+      prev = cur;
+      cur = nxt;
+    }
+    return seg;
+  }
+
+  for (let i = 0; i < points.length; i++) {
+    if (!alive(i) || degree(i) === 2) continue;
+    for (const nb of adjacency[i]) {
+      if (!alive(nb) || visitedEdge.has(edgeKey(i, nb))) continue;
+      segments.push({ path: walk(i, nb), cycle: false });
+    }
+  }
+  // Whatever edges are still unvisited belong to pure cycles (every node
+  // on them has degree 2 — no endpoint/junction to start a walk from).
+  for (let i = 0; i < points.length; i++) {
+    if (!alive(i)) continue;
+    for (const nb of adjacency[i]) {
+      if (!alive(nb) || visitedEdge.has(edgeKey(i, nb))) continue;
+      const seg = walk(i, nb);
+      seg.push(points[i]); // close the ring back to the start
+      segments.push({ path: seg, cycle: true });
+    }
+  }
+  return segments;
+}
+
+// Samples a letter down to a handful of star points (~6-10) chosen from
+// its actual skeleton topology — corners, loop tops/bottoms and crossbars
+// survive because this traces the true medial-axis structure instead of
+// a per-column average. Each edge carries a bezier control point pulled
+// from the true midpoint of the underlying detailed path, so the curve
+// between two sparse stars still bows the way the real glyph flows.
+function sampleLetterPath(ch, fontPx, ascent, descent) {
+  const raster = rasterizeGlyphMask(ch, fontPx, ascent, descent);
+  if (!raster) return { points: [], edges: [], advance: 0 };
+  const { mask, w, h, advance, baselineY, pad } = raster;
+  const thin = thinMask(mask, w, h);
+  const { points: pxPoints, adjacency } = buildSkeletonGraph(thin, w, h);
+  if (pxPoints.length === 0) return { points: [], edges: [], advance };
+
+  const removed = pruneSpurs(pxPoints, adjacency, Math.max(3, fontPx * 0.06));
+  let segments = extractSkeletonSegments(pxPoints, adjacency, removed);
+
+  // A junction can sit right next to another junction (e.g. where a "p"
+  // stem passes close to its own loop) with only a few noisy pixels
+  // between them — a redundant bridge, not a real letter feature. Drop
+  // any short segment whose *both* ends are junctions.
+  const degreeMap = new Map();
+  for (let i = 0; i < pxPoints.length; i++) {
+    if (removed.has(i)) continue;
+    degreeMap.set(pxPoints[i].x + "," + pxPoints[i].y, adjacency[i].filter((n) => !removed.has(n)).length);
+  }
+  const BRIDGE_MIN = Math.max(6, fontPx * 0.1);
+  segments = segments.filter((seg) => {
+    if (seg.cycle || seg.path.length >= BRIDGE_MIN) return true;
+    const first = seg.path[0], last = seg.path[seg.path.length - 1];
+    const dFirst = degreeMap.get(first.x + "," + first.y) || 0;
+    const dLast = degreeMap.get(last.x + "," + last.y) || 0;
+    return !(dFirst >= 3 && dLast >= 3);
+  });
+
+  const DP_EPSILON = fontPx * 0.035;
+  const CYCLE_UNIT = fontPx * 0.22;
+  const chosen = [];
+  const localEdges = [];
+  // Junction/endpoint pixels are shared by more than one segment — dedupe
+  // by pixel coordinate so a shared vertex becomes one star, not a cluster
+  // of near-identical duplicates.
+  const chosenIndexOf = new Map();
+  function getOrAddPoint(x, y) {
+    const key = x + "," + y;
+    if (chosenIndexOf.has(key)) return chosenIndexOf.get(key);
+    const idx = chosen.length;
+    chosen.push({ x, y });
+    chosenIndexOf.set(key, idx);
+    return idx;
+  }
+
+  for (const seg of segments) {
+    const path = seg.path;
+    if (path.length < 2) continue;
+    const cum = arcLengthTable(path);
+    const total = cum[cum.length - 1];
+    let idxList;
+    if (seg.cycle) {
+      const count = Math.max(5, Math.min(8, Math.round(total / CYCLE_UNIT)));
+      idxList = [];
+      for (let i = 0; i < count; i++) {
+        const target = (i / count) * total;
+        let bi = 0;
+        while (bi < cum.length - 2 && cum[bi + 1] < target) bi++;
+        idxList.push(bi);
+      }
+    } else {
+      idxList = simplifyIndices(path, DP_EPSILON);
+    }
+    const chosenIdxForRaw = idxList.map((rawIdx) => getOrAddPoint(path[rawIdx].x, path[rawIdx].y));
+    const n = idxList.length;
+    const pairCount = seg.cycle ? n : n - 1;
+    for (let k = 0; k < pairCount; k++) {
+      const nextK = (k + 1) % n;
+      const targetA = cum[idxList[k]];
+      const targetB = nextK === 0 ? total : cum[idxList[nextK]];
+      const mid = pointAtArcLength(path, cum, (targetA + targetB) / 2);
+      const A = chosen[chosenIdxForRaw[k]], B = chosen[chosenIdxForRaw[nextK]];
+      const control = { x: mid.x * 2 - (A.x + B.x) * 0.5, y: mid.y * 2 - (A.y + B.y) * 0.5 };
+      localEdges.push([chosenIdxForRaw[k], chosenIdxForRaw[nextK], control]);
+    }
+  }
+
+  // A fully isolated component (e.g. a dot that thinned to a lone pixel)
+  // still gets its own star, just with no connecting line.
+  for (let i = 0; i < pxPoints.length; i++) {
+    if (removed.has(i)) continue;
+    if (adjacency[i].some((n) => !removed.has(n))) continue;
+    chosen.push({ x: pxPoints[i].x, y: pxPoints[i].y });
+  }
+
+  if (chosen.length === 0) return { points: [], edges: [], advance };
+
+  const points = chosen.map((c) => ({ x: c.x - pad, y: c.y - baselineY }));
+  const edges = localEdges.map(([a, b, control]) => [
+    a, b, { x: control.x - pad, y: control.y - baselineY },
+  ]);
+  return { points, edges, advance };
+}
+
+function sampleTextToStars(text) {
+  const LETTER_SPACING = 1.5;
+  const JITTER_PX = 3;
+
+  const off = document.createElement("canvas");
+  const octx = off.getContext("2d");
+  octx.font = `${GLYPH_TRACE_PX}px ${SCRIPT_FONT_STACK}`;
+  const wholeMetrics = octx.measureText(text);
+  const ascent = wholeMetrics.fontBoundingBoxAscent || GLYPH_TRACE_PX * 0.85;
+  const descent = wholeMetrics.fontBoundingBoxDescent || GLYPH_TRACE_PX * 0.25;
+  const SCALE = 14 / (ascent + descent); // maps the font's full height to ~[-7, 7], like the old hand-built skeleton
+  const spaceAdvance = octx.measureText(" ").width;
+
   let cursor = 0;
   const rawPoints = [];
   const edges = [];
-  for (const ch of upper) {
+  for (const ch of text) {
     if (ch === " ") {
-      cursor += SPACE_WIDTH;
+      cursor += spaceAdvance * SCALE;
       continue;
     }
-    const letter = LETTERS[ch];
-    if (!letter) continue;
+    const letter = sampleLetterPath(ch, GLYPH_TRACE_PX, ascent, descent);
+    if (letter.points.length === 0) continue;
     const base = rawPoints.length;
-    for (const p of letter.points) rawPoints.push({ x: p.x + cursor, y: p.y });
-    for (const [a, b] of letter.edges) edges.push([base + a, base + b]);
-    cursor += letter.width + LETTER_SPACING;
+    for (const p of letter.points) rawPoints.push({ x: p.x * SCALE + cursor, y: p.y * SCALE });
+    for (const [a, b, control] of letter.edges) {
+      edges.push([base + a, base + b, { x: control.x * SCALE + cursor, y: control.y * SCALE }]);
+    }
+    cursor += letter.advance * SCALE + LETTER_SPACING;
   }
   const localTotalWidth = Math.max(1, cursor - LETTER_SPACING);
-  const LETTER_HEIGHT = 14; // every letter's local y spans [-7, 7]
+  const LETTER_HEIGHT = 14;
   const NAME_LEFT_FRAC = 0.1;
   const NAME_WIDTH_FRAC = 0.8; // name spans cw*0.1 to cw*0.9
   const NAME_HEIGHT_FRAC = 0.10; // letter height as a fraction of ch
@@ -477,7 +833,23 @@ function sampleTextToStars(text) {
   const points = rawPoints.map((p) => ({
     xFrac: NAME_LEFT_FRAC + (p.x / localTotalWidth) * NAME_WIDTH_FRAC,
     yFrac: (p.y / LETTER_HEIGHT) * NAME_HEIGHT_FRAC,
+    sizeMult: randRange(0.75, 1.35),
   }));
+
+  // Bezier control points ride along in the same normalized xFrac/yFrac
+  // space as the stars they curve between.
+  const scaledEdges = edges.map(([a, b, control]) => [
+    a, b,
+    NAME_LEFT_FRAC + (control.x / localTotalWidth) * NAME_WIDTH_FRAC,
+    (control.y / LETTER_HEIGHT) * NAME_HEIGHT_FRAC,
+  ]);
+
+  // Organic jitter: a few screen pixels of offset per star, baked in once
+  // (not re-rolled per frame) so nothing lines up in rigid straight runs.
+  for (const p of points) {
+    p.xFrac += randRange(-JITTER_PX, JITTER_PX) / cw;
+    p.yFrac += randRange(-JITTER_PX, JITTER_PX) / ch;
+  }
 
   // Ignite left-to-right across the whole name, with a little jitter, so it
   // reads as a deliberate sweep rather than random twinkling.
@@ -486,7 +858,7 @@ function sampleTextToStars(text) {
     const delay = frac * CONFIG.INTRO.igniteWindow + randRange(-150, 150);
     p.igniteDelay = Math.max(0, Math.min(CONFIG.INTRO.igniteWindow, delay));
   }
-  return { points, edges };
+  return { points, edges: scaledEdges };
 }
 
 // =====================================================================
@@ -978,6 +1350,73 @@ document.getElementById("player-toggle").addEventListener("click", () => {
   togglePlayPause();
 });
 
+function progressFractionFromX(clientX) {
+  const rect = document.getElementById("player-progress").getBoundingClientRect();
+  if (rect.width <= 0) return 0;
+  return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+}
+
+function setProgressFillFraction(frac) {
+  document.getElementById("player-progress-fill").style.width = frac * 100 + "%";
+}
+
+function seekCurrentTo(frac) {
+  const el = audioState.currentEl;
+  if (!el || !el.duration) return;
+  el.currentTime = frac * el.duration;
+}
+
+function startProgressDrag(clientX) {
+  if (!audioState.currentEl || !audioState.currentEl.duration) return;
+  seekState.dragging = true;
+  document.getElementById("player-progress").classList.add("dragging");
+  const frac = progressFractionFromX(clientX);
+  setProgressFillFraction(frac);
+  // A plain click (mousedown immediately followed by mouseup with no
+  // movement) should seek right away rather than waiting for mouseup.
+  seekCurrentTo(frac);
+}
+
+function moveProgressDrag(clientX) {
+  if (!seekState.dragging) return;
+  setProgressFillFraction(progressFractionFromX(clientX));
+}
+
+function endProgressDrag(clientX) {
+  if (!seekState.dragging) return;
+  seekState.dragging = false;
+  document.getElementById("player-progress").classList.remove("dragging");
+  const frac = progressFractionFromX(clientX);
+  setProgressFillFraction(frac);
+  seekCurrentTo(frac);
+}
+
+const progressBar = document.getElementById("player-progress");
+
+progressBar.addEventListener("mousedown", (e) => {
+  onPointerDownOnce();
+  startProgressDrag(e.clientX);
+});
+window.addEventListener("mousemove", (e) => {
+  moveProgressDrag(e.clientX);
+});
+window.addEventListener("mouseup", (e) => {
+  endProgressDrag(e.clientX);
+});
+
+progressBar.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  onPointerDownOnce();
+  startProgressDrag(e.touches[0].clientX);
+}, { passive: false });
+progressBar.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  moveProgressDrag(e.touches[0].clientX);
+}, { passive: false });
+progressBar.addEventListener("touchend", (e) => {
+  endProgressDrag(e.changedTouches[0].clientX);
+});
+
 window.addEventListener("keydown", (e) => {
   onPointerDownOnce();
   if (e.code === "Space") {
@@ -1076,15 +1515,29 @@ function onSongEnded(cs) {
   hidePlayerBar();
 }
 
+function pickSong(cs) {
+  const available = cs.songs.map((_, i) => i).filter((i) => cs.songs[i].file);
+  if (available.length === 0) return null;
+  const cState = constellationState.get(cs.id);
+  let idx;
+  if (available.length === 1) {
+    idx = available[0];
+  } else {
+    do {
+      idx = available[Math.floor(Math.random() * available.length)];
+    } while (idx === cState.lastSongIndex);
+  }
+  cState.lastSongIndex = idx;
+  return cs.songs[idx];
+}
+
 function activateConstellation(cs) {
   cs.visited = true;
   ui.activeFocusId = cs.id;
   focusOnConstellation(cs);
 
-  const song = cs.songs[cs.rotationIndex];
-  cs.rotationIndex = (cs.rotationIndex + 1) % cs.songs.length;
-
-  if (song.file) {
+  const song = pickSong(cs);
+  if (song) {
     playSong(cs, song);
   }
 }
@@ -1094,10 +1547,15 @@ function updatePlayerProgress() {
   const fill = document.getElementById("player-progress-fill");
   const toggleIcon = document.getElementById("icon-play");
   const pauseIcon = document.getElementById("icon-pause");
-  if (el && el.duration) {
-    fill.style.width = (el.currentTime / el.duration) * 100 + "%";
-  } else {
-    fill.style.width = "0%";
+  // Skip while the user is dragging the handle — the drag's own visual
+  // update owns the fill width until they release, so playback position
+  // doesn't fight with the pointer.
+  if (!seekState.dragging) {
+    if (el && el.duration) {
+      fill.style.width = (el.currentTime / el.duration) * 100 + "%";
+    } else {
+      fill.style.width = "0%";
+    }
   }
   if (el && !el.paused) {
     toggleIcon.style.display = "none";
@@ -1155,7 +1613,7 @@ function spawnShootingStar(now) {
   const startX = randRange(cw * 0.1, cw * 0.9);
   const startY = randRange(ch * 0.05, ch * 0.4);
   const angle = randRange(20, 65) * (Math.PI / 180) * (Math.random() < 0.5 ? 1 : -1);
-  const distance = Math.hypot(cw, ch) * 0.32;
+  const distance = Math.hypot(cw, ch) * 0.48;
   const duration = randRange(800, 1400);
   shootingStar.active = true;
   shootingStar.startTime = now;
@@ -1250,13 +1708,16 @@ function renderIntro(now) {
   const lineAlpha = Math.min(1, Math.max(0, (elapsed - I.linesStart) / I.linesDur)) * overallAlpha;
 
   ctx.save();
-  ctx.strokeStyle = `rgba(200,220,255,${lineAlpha * 0.5})`;
-  ctx.lineWidth = 1;
-  for (const [a, b] of introNameEdges) {
+  ctx.strokeStyle = `rgba(200,220,255,${lineAlpha * 0.8})`;
+  ctx.lineWidth = 1.1;
+  for (const [a, b, ctrlXFrac, ctrlYFrac] of introNameEdges) {
     const p1 = introNameStars[a], p2 = introNameStars[b];
     ctx.beginPath();
     ctx.moveTo(p1.xFrac * cw, nameAnchorY + p1.yFrac * ch);
-    ctx.lineTo(p2.xFrac * cw, nameAnchorY + p2.yFrac * ch);
+    ctx.quadraticCurveTo(
+      ctrlXFrac * cw, nameAnchorY + ctrlYFrac * ch,
+      p2.xFrac * cw, nameAnchorY + p2.yFrac * ch
+    );
     ctx.stroke();
   }
 
@@ -1264,14 +1725,14 @@ function renderIntro(now) {
     const igniteAlpha = Math.min(1, Math.max(0, (elapsed - star.igniteDelay) / I.igniteDur));
     const a = igniteAlpha * overallAlpha;
     if (a <= 0) continue;
-    const r = 2.2 * pulseScale;
+    const r = 1.7 * pulseScale * star.sizeMult;
     const gx = star.xFrac * cw, gy = nameAnchorY + star.yFrac * ch;
-    const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, r * 3.5);
+    const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, r * 2.3);
     grad.addColorStop(0, `rgba(255,248,225,${a})`);
     grad.addColorStop(1, "rgba(255,248,225,0)");
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(gx, gy, r * 3.5, 0, Math.PI * 2);
+    ctx.arc(gx, gy, r * 2.3, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = `rgba(255,255,255,${a})`;
     ctx.beginPath();
@@ -1459,19 +1920,32 @@ function drawShootingStar(now) {
   const t = Math.min(1, (now - shootingStar.startTime) / shootingStar.duration);
   const headX = shootingStar.x0 + shootingStar.dx * t;
   const headY = shootingStar.y0 + shootingStar.dy * t;
-  const tailT = Math.max(0, t - 0.18);
-  const tailX = shootingStar.x0 + shootingStar.dx * tailT;
-  const tailY = shootingStar.y0 + shootingStar.dy * tailT;
-  const grad = ctx.createLinearGradient(tailX, tailY, headX, headY);
-  grad.addColorStop(0, "rgba(255,255,255,0)");
-  grad.addColorStop(1, "rgba(255,255,255,0.85)");
-  ctx.strokeStyle = grad;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(tailX, tailY);
-  ctx.lineTo(headX, headY);
-  ctx.stroke();
-  drawGlow(headX, headY, 8, "rgba(255,255,255,0.9)");
+
+  // Layered trail: wide soft outer glow, mid-weight glow, and a bright thin
+  // core, each with its own tail length so the trail feathers outward.
+  const layers = [
+    { tailOffset: 0.34, width: 7, alpha: 0.22 },
+    { tailOffset: 0.25, width: 3.5, alpha: 0.5 },
+    { tailOffset: 0.18, width: 1.4, alpha: 0.95 },
+  ];
+
+  for (const layer of layers) {
+    const tailT = Math.max(0, t - layer.tailOffset);
+    const tailX = shootingStar.x0 + shootingStar.dx * tailT;
+    const tailY = shootingStar.y0 + shootingStar.dy * tailT;
+    const grad = ctx.createLinearGradient(tailX, tailY, headX, headY);
+    grad.addColorStop(0, "rgba(255,255,255,0)");
+    grad.addColorStop(1, `rgba(255,255,255,${layer.alpha})`);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = layer.width;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(tailX, tailY);
+    ctx.lineTo(headX, headY);
+    ctx.stroke();
+  }
+
+  drawGlow(headX, headY, 14, "rgba(255,255,255,0.95)");
 }
 
 function draw(now) {
